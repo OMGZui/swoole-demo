@@ -1,0 +1,32 @@
+{
+  "name": "shengj/swoole",
+  "description": "swoole demo",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "omgzui",
+      "email": "862275679@qq.com"
+    }
+  ],
+  "type": "library",
+  "require": {
+    "php": "^7.1.1"
+  },
+  "require-dev": {
+    "symfony/var-dumper": "^4.1",
+    "eaglewu/swoole-ide-helper": "dev-master",
+    "symfony/panther": "^0.1.0",
+    "phpunit/phpunit": "^7.3"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
+  "minimum-stability": "dev"
+}

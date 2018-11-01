@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ws</title>
+
+</head>
+<body>
+<h1>你是头大山驴</h1>
+</body>
+<script>
+    let ws = new WebSocket("ws://127.0.0.1:9504");
+    ws.onopen = function (ws) {
+        console.log("连接服务器");
+    };
+
+    ws.onclose = function (ws) {
+        console.log("断开连接");
+    };
+
+    ws.onmessage = function (ws) {
+        console.log('接收来自服务器的消息：' + ws.data);
+    };
+
+    ws.onerror = function (ws, event) {
+        console.log('错误了：' + ws.data);
+    };
+</script>
+</html>
