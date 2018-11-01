@@ -31,7 +31,7 @@ extension=swoole.so
 
 ## 三、基本入门
 
-**注意：**示例代码都引入了`"symfony/var-dumper"`包进行美化打印
+**注意：** 示例代码都引入了`"symfony/var-dumper"`包进行美化打印
 
 `Swoole`的绝大部分功能只能用于`cli`命令行环境
 
