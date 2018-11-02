@@ -299,4 +299,68 @@ php tcp_server.php
 php tcp_async_client.php
 ```
 
-### 
+### 9、异步客户端
+
+mysql
+
+```php
+// 异步mysql客户端
+$db = new \Swoole\Mysql();
+$config = [
+    'host' => '127.0.0.1',
+    'user' => 'root',
+    'password' => 'root',
+    'database' => 'mac',
+    'port' => '3307',
+];
+
+$db->connect($config, function (\Swoole\Mysql $db, $rs) {
+    $db->query('SELECT * FROM user', function (\Swoole\Mysql $db, $rs) {
+        dump($rs);
+        $db->close();
+    });
+});
+```
+
+http
+
+```php
+// 异步http客户端
+$cli = new Swoole\Http\Client('127.0.0.1', 80);
+$cli->setHeaders(array('User-Agent' => 'swoole-http-client'));
+$cli->setCookies(array('test' => 'value'));
+
+$cli->get('/login', function (\Swoole\Http\Client $cli) {
+    dump($cli->statusCode);
+    dump($cli->cookies);
+    dump($cli->headers);
+});
+```
+
+### 10、协程客户端
+
+```php
+// 协程mysql客户端
+$http = new swoole_http_server(HOST, 9506);
+$http->on('request', function ($request, $response) {
+    $db = new \Swoole\Coroutine\Mysql();
+    $db->connect([
+        'host' => '127.0.0.1',
+        'user' => 'root',
+        'password' => 'root',
+        'database' => 'mac',
+        'port' => '3307',
+    ]);
+    $data = $db->query('select * from user');
+    dump($data);
+    $response->end(json_encode($data));
+});
+$http->start();
+```
+
+```bash
+php coroutine_client.php
+
+curl -XGET "127.0.0.1:9506"
+```
+
