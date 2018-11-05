@@ -9,10 +9,10 @@ composer install
 
 ## 教程
 
-1. [初始swoole](book/swoole.md)
-1. [聊天室](book/聊天室.md)
+1. [初始swoole](src/init/swoole.md)
+1. [简单聊天室](src/websocket/聊天室.md)
 
-## 简单示例
+## 栗子
 
 1. [TCP服务器](src/init/tcp_server.php)
 2. [UDP服务器](src/init/udp_server.php)
