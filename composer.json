@@ -10,11 +10,12 @@
   ],
   "type": "library",
   "require": {
-    "php": "^7.1.1"
+    "php": "^7.1.1",
+    "ext-json": "*"
   },
   "require-dev": {
     "symfony/var-dumper": "^4.1",
-    "eaglewu/swoole-ide-helper": "dev-master",
+    "eaglewu/swoole-ide-helper": "*",
     "symfony/panther": "^0.1.0",
     "phpunit/phpunit": "^7.3"
   },
