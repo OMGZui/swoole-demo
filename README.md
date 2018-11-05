@@ -10,6 +10,7 @@ composer install
 ## 教程
 
 1. [初始swoole](book/swoole.md)
+1. [聊天室](book/聊天室.md)
 
 ## 简单示例
 
