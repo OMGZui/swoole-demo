@@ -8,7 +8,7 @@
       "email": "862275679@qq.com"
     }
   ],
-  "type": "library",
+  "type": "project",
   "require": {
     "php": "^7.1.1",
     "ext-json": "*"
