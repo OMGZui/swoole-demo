@@ -3,7 +3,7 @@
 ## 使用
 
 ```bash
-create-project -s dev omgzui/swoole
+composer create-project -s dev omgzui/swoole
 ```
 or
 ```bash
@@ -14,7 +14,7 @@ composer install
 ## 教程
 
 1. [初始swoole](src/init/swoole.md)
-1. [简单聊天室](src/websocket/聊天室.md)
+2. [简单聊天室](src/websocket/聊天室.md)
 
 ## 栗子
 

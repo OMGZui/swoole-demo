@@ -2,30 +2,37 @@
 /**
  * Created by PhpStorm.
  * User: 小粽子
- * Date: 2018/11/5
- * Time: 20:24
+ * Date: 2018/11/6
+ * Time: 10:58
  */
 
 namespace App\WebSocket;
 
+use Predis\Client;
+
 /**
- * 简单的聊天室
+ * 使用redis代替table，并存储历史聊天记录
  *
- * Class WebSocketServer
+ * Class WsRedisServer
  * @package App\WebSocket
  */
-class WebSocketServer
+class WsRedisServer
 {
     private $config;
-    private $table;
     private $server;
+    private $client;
+    private $key = "socket:user";
 
     public function __construct()
     {
-        // 内存表 实现进程间共享数据，也可以使用redis替代
-        $this->createTable();
         // 实例化配置
         $this->config = Config::getInstance();
+        // redis
+        $this->initRedis();
+        // 初始化，主要是服务端自己关闭不会清空redis
+        foreach ($this->allUser() as $item) {
+            $this->client->hdel("{$this->key}:{$item['fd']}", ['fd', 'name', 'avatar']);
+        }
     }
 
     public function run()
@@ -49,20 +56,28 @@ class WebSocketServer
             'name' => $this->config['socket']['name'][array_rand($this->config['socket']['name'])] . $request->fd,
             'avatar' => $this->config['socket']['avatar'][array_rand($this->config['socket']['avatar'])]
         ];
-        // 放入内存表
-        $this->table->set($request->fd, $user);
+        // 放入redis
+        $this->client->hmset("{$this->key}:{$user['fd']}", $user);
 
-        $server->push($request->fd, json_encode(
-                array_merge(['user' => $user], ['all' => $this->allUser()], ['type' => 'openSuccess'])
-            )
-        );
+        // 给每个人推送，包括自己
+        foreach ($this->allUser() as $item) {
+            $server->push($item['fd'], json_encode([
+                'user' => $user,
+                'all' => $this->allUser(),
+                'type' => 'openSuccess'
+            ]));
+        }
     }
 
     private function allUser()
     {
         $users = [];
-        foreach ($this->table as $row) {
-            $users[] = $row;
+        $keys = $this->client->keys("{$this->key}:*");
+        // 所有的key
+        foreach ($keys as $k => $item) {
+            $users[$k]['fd'] = $this->client->hget($item, 'fd');
+            $users[$k]['name'] = $this->client->hget($item, 'name');
+            $users[$k]['avatar'] = $this->client->hget($item, 'avatar');
         }
         return $users;
     }
@@ -84,20 +99,26 @@ class WebSocketServer
     {
         $message = htmlspecialchars($message);
         $datetime = date('Y-m-d H:i:s', time());
-        $user = $this->table->get($fd);
+        $user['fd'] = $this->client->hget("{$this->key}:{$fd}", 'fd');
+        $user['name'] = $this->client->hget("{$this->key}:{$fd}", 'name');
+        $user['avatar'] = $this->client->hget("{$this->key}:{$fd}", 'avatar');
 
-        foreach ($this->table as $item) {
+        foreach ($this->allUser() as $item) {
             // 自己不用发送
             if ($item['fd'] == $fd) {
                 continue;
             }
 
-            $server->push($item['fd'], json_encode([
+            $is_push = $server->push($item['fd'], json_encode([
                 'type' => $type,
                 'message' => $message,
                 'datetime' => $datetime,
                 'user' => $user
             ]));
+            // 删除失败的推送
+            if (!$is_push) {
+                $this->client->hdel("{$this->key}:{$item['fd']}", ['fd', 'name', 'avatar']);
+            }
         }
     }
 
@@ -109,20 +130,22 @@ class WebSocketServer
      */
     public function close(\swoole_websocket_server $server, int $fd)
     {
-        $user = $this->table->get($fd);
+        $user['fd'] = $this->client->hget("{$this->key}:{$fd}", 'fd');
+        $user['name'] = $this->client->hget("{$this->key}:{$fd}", 'name');
+        $user['avatar'] = $this->client->hget("{$this->key}:{$fd}", 'avatar');
         $this->pushMessage($server, "{$user['name']}离开聊天室", 'close', $fd);
-        $this->table->del($fd);
+        $this->client->hdel("{$this->key}:{$fd}", ['fd', 'name', 'avatar']);
     }
 
     /**
-     * 创建内存表
+     * 初始化redis
      */
-    private function createTable()
+    private function initRedis()
     {
-        $this->table = new \swoole_table(1024);
-        $this->table->column('fd', \swoole_table::TYPE_INT);
-        $this->table->column('name', \swoole_table::TYPE_STRING, 255);
-        $this->table->column('avatar', \swoole_table::TYPE_STRING, 255);
-        $this->table->create();
+        $this->client = new Client([
+            'scheme' => $this->config['socket']['redis']['scheme'],
+            'host' => $this->config['socket']['redis']['host'],
+            'port' => $this->config['socket']['redis']['port'],
+        ]);
     }
 }

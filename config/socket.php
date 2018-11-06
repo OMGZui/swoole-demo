@@ -10,6 +10,12 @@ return [
     'host' => '0.0.0.0',
     'port' => 9501,
 
+    'redis' => [
+        'scheme' => 'tcp',
+        'host' => '0.0.0.0',
+        'port' => 6380
+    ],
+
     'avatar' => [
         './images/avatar/1.jpg',
         './images/avatar/2.jpg',
