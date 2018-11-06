@@ -3,6 +3,10 @@
 ## 使用
 
 ```bash
+create-project -s dev omgzui/swoole
+```
+or
+```bash
 git clone https://github.com/OMGZui/swoole-demo.git
 composer install
 ```
