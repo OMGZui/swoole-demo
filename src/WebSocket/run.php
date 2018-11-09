@@ -8,7 +8,7 @@
 
 require __DIR__ . '/../bootstrap.php';
 
-//$server = new App\WebSocket\WebSocketServer();
-$server = new \App\WebSocket\WsRedisServer();
+$server = new \App\WebSocket\WebSocketServer();
+//$server = new \App\WebSocket\WsRedisServer();
 
 $server->run();
