@@ -11,17 +11,20 @@ namespace App\Advance;
 // 拟linux定时任务
 class CronTab
 {
-    public function __construct()
+    private $time;
+
+    public function __construct($time)
     {
+        $this->time = $time;
     }
 
-    public function run($time)
+    public function run()
     {
-        swoole_timer_tick($time, [$this, 'cron']);
+        swoole_timer_tick($this->time, [$this, 'cron']);
     }
 
     private function cron($time_id)
     {
-
+        dump("每{$this->time}毫秒执行一次，ID[{$time_id}]");
     }
 }
